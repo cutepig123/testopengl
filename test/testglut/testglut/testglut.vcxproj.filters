@@ -29,7 +29,13 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="testglut.cpp">
+    <ClCompile Include="ddbuffer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="demo1.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

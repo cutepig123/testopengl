@@ -6,6 +6,7 @@
 
 #include <GL/freeglut.h>
 
+static
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glBegin(GL_POLYGON);
@@ -17,10 +18,11 @@ void display() {
 	glFlush();
 }
 
-int main(int argc, char** argv) {
+int demo1(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutCreateWindow("Freeglut Hello World");
 	glutDisplayFunc(display);
 	glutMainLoop();
+	return 0;
 }
 
