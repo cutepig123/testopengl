@@ -1,5 +1,7 @@
 
 #include <GL/freeglut.h>
+#include <stdio.h>
+#include <assert.h>
 
 namespace {
 
@@ -9,6 +11,12 @@ namespace {
 	GLubyte checkimage[checkimagewidth][checkimageheigh][4];
 	GLuint texName;
 	int spin = 0;
+	static float speed = 360.0 / 1000 / 5;
+	enum Mode
+	{
+		ModeIdle,
+		ModeTimer
+	}dispMode;
 
 	void makecheckimage()
 	{
@@ -41,6 +49,10 @@ namespace {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);	//?
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);	//?
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, checkimagewidth, checkimageheigh, 0, GL_RGBA, GL_UNSIGNED_BYTE, checkimage);
+
+		glEnable(GL_TEXTURE_2D);
+		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);	//?
+		glBindTexture(GL_TEXTURE_2D, texName);
 	}
 
 	GLfloat atex_vertexcoords[][5] = { {0,0,	-2,-1,0,},
@@ -56,9 +68,10 @@ namespace {
 	void display() {
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);	//必须
 
-		//设置相机位置？
-		//glLoadIdentity();	//有了这一句显示完全不正常了，为啥？
-		//glRotatef(spin, 0, -3, 1);
+		//由于在reshape最后设置的是modelview矩阵，所以这里其实是modelview矩阵参数
+		glLoadIdentity();
+		glTranslatef(0, 0, -3.6);
+		glRotatef(spin, 0, 0, 1);
 
 		if (0)
 		{
@@ -73,9 +86,7 @@ namespace {
 			glutWireCube(1);
 		}
 
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);	//?
-		glBindTexture(GL_TEXTURE_2D, texName);
+		
 
 		glBegin(GL_QUADS);
 
@@ -85,16 +96,33 @@ namespace {
 			glVertex3f(atex_vertexcoords[i][2], atex_vertexcoords[i][3], atex_vertexcoords[i][4]);
 		}
 		glEnd();
-		glFlush();
-		glDisable(GL_TEXTURE_2D);
+		//glFlush();
+		glutSwapBuffers();
+		//glDisable(GL_TEXTURE_2D);
 	}
 
-	void spinDisplay()
+	void UpdateSpin()
 	{
-		spin += 2;
-		if (spin > 360)
-			spin -= 360;
-		glutPostRedisplay();
+		static DWORD dwPrevTime = GetTickCount();
+
+		DWORD dwCurTime = GetTickCount();
+		DWORD dwINterval = dwCurTime - dwPrevTime;
+
+		if (dwINterval)
+		{
+			spin += (dwINterval)*speed;
+			if (spin > 360)
+				spin -= 360;
+			glutPostRedisplay();
+			float fps = (float)(1000.0 / dwINterval);
+			printf("\r FPS %f mode %s", fps, dispMode==ModeIdle?"Idle":"Timer");
+			dwPrevTime = dwCurTime;
+		}
+	}
+	void idleDisplay()
+	{
+		assert((dispMode == ModeIdle));
+		UpdateSpin();
 	}
 
 	void reshape(int w, int h)
@@ -108,18 +136,41 @@ namespace {
 		glTranslatef(0, 0, -3.6);
 	}
 
+	static int redisplay_interval;
+
+	void timer(int) {
+		//glutPostRedisplay();
+		UpdateSpin();
+
+		if(dispMode==ModeTimer)
+			glutTimerFunc(redisplay_interval, timer, 0);
+	}
+
+	void setFPS(int fps)
+	{
+		redisplay_interval = 1000 / fps;
+		glutTimerFunc(redisplay_interval, timer, 0);
+	}
+
 	void mouse(int button, int state, int x, int y)
 	{
 		switch (button)
 		{
 		case GLUT_LEFT_BUTTON:
 			if (state == GLUT_DOWN)
-				//glutIdleFunc(spinDisplay);
-				spinDisplay();
+			{
+				dispMode = ModeIdle;
+				glutIdleFunc(idleDisplay);
+				
+			}
 			break;
 		case GLUT_RIGHT_BUTTON:
 			if (state == GLUT_DOWN)
+			{
+				dispMode = ModeTimer;
 				glutIdleFunc(NULL);
+				setFPS(50);
+			}
 			break;
 		default:
 			break;
@@ -130,7 +181,7 @@ namespace {
 
 int ttexture(int argc, char** argv) {
 	glutInit(&argc, argv);
-	glutInitDisplayMode( GLUT_RGB);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowSize(250, 250);
 
 	glutCreateWindow("Freeglut Hello World");
@@ -138,7 +189,7 @@ int ttexture(int argc, char** argv) {
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
-	//glutMouseFunc(mouse);
+	glutMouseFunc(mouse);
 
 	glutMainLoop();
 	return 0;
