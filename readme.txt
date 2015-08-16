@@ -20,7 +20,7 @@ F:\opengl\test\testglut
 	gluPerspective
 modelviuew矩阵
 	？
-一般在display函数，glclear之后设置的是相机位置？
+一般在display函数，glclear之后设置的是相机位置？No，一般是modelview矩阵
 	gluLookAt(camPos, camLookAt, upper)
 	
 6）学习资料
