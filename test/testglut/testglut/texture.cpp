@@ -3,11 +3,12 @@
 
 namespace {
 
-	const int checkimagewidth = 64;
-	const int checkimageheigh= 64;
+	const int checkimagewidth = 255;
+	const int checkimageheigh= 255;
 
 	GLubyte checkimage[checkimagewidth][checkimageheigh][4];
 	GLuint texName;
+	int spin = 0;
 
 	void makecheckimage()
 	{
@@ -15,8 +16,9 @@ namespace {
 		{
 			for (int j = 0; j < checkimagewidth; j++)
 			{
-				int c = (((i & 8) == 0) ^ ((j & 8) == 0)) * 255;
-				checkimage[i][j][0] = checkimage[i][j][1] = checkimage[i][j][2] = c;
+				checkimage[i][j][0] = (3*i)%255;
+				checkimage[i][j][1] = (3 * j) % 255;
+				checkimage[i][j][2] = (2*(i+j)) % 255;
 				checkimage[i][j][3] = 255;
 			}
 		}
@@ -24,6 +26,8 @@ namespace {
 	void init()
 	{
 		glClearColor(0.5, 0, 0, 0);	//必须的，设置glClear采用的背景色
+		
+
 		glShadeModel(GL_FLAT);
 		glEnable(GL_DEPTH_TEST);
 		makecheckimage();
@@ -51,9 +55,28 @@ namespace {
 	};
 	void display() {
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);	//必须
+
+		//设置相机位置？
+		//glLoadIdentity();	//有了这一句显示完全不正常了，为啥？
+		//glRotatef(spin, 0, -3, 1);
+
+		if (0)
+		{
+			glLoadIdentity();
+			GLfloat camPos[] = { 0,0,5 };
+			GLfloat camLookAtPos[] = { 0,0,0 };
+			GLfloat upper[] = { 0,1,0 };
+			gluLookAt(camPos[0], camPos[1], camPos[2],
+				camLookAtPos[0], camLookAtPos[1], camLookAtPos[2],
+				upper[0], upper[1], upper[2]);
+
+			glutWireCube(1);
+		}
+
 		glEnable(GL_TEXTURE_2D);
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);	//?
 		glBindTexture(GL_TEXTURE_2D, texName);
+
 		glBegin(GL_QUADS);
 
 		for (size_t i = 0; i < sizeof(atex_vertexcoords)/ sizeof(atex_vertexcoords[0]); i++)
@@ -66,13 +89,13 @@ namespace {
 		glDisable(GL_TEXTURE_2D);
 	}
 
-	/*void spinDisplay()
+	void spinDisplay()
 	{
 		spin += 2;
 		if (spin > 360)
 			spin -= 360;
 		glutPostRedisplay();
-	}*/
+	}
 
 	void reshape(int w, int h)
 	{
@@ -85,23 +108,23 @@ namespace {
 		glTranslatef(0, 0, -3.6);
 	}
 
-	//void mouse(int button, int state, int x, int y)
-	//{
-	//	switch (button)
-	//	{
-	//	case GLUT_LEFT_BUTTON:
-	//		if (state == GLUT_DOWN)
-	//			//glutIdleFunc(spinDisplay);
-	//			spinDisplay();
-	//		break;
-	//	case GLUT_RIGHT_BUTTON:
-	//		if (state == GLUT_DOWN)
-	//			glutIdleFunc(NULL);
-	//		break;
-	//	default:
-	//		break;
-	//	}
-	//}
+	void mouse(int button, int state, int x, int y)
+	{
+		switch (button)
+		{
+		case GLUT_LEFT_BUTTON:
+			if (state == GLUT_DOWN)
+				//glutIdleFunc(spinDisplay);
+				spinDisplay();
+			break;
+		case GLUT_RIGHT_BUTTON:
+			if (state == GLUT_DOWN)
+				glutIdleFunc(NULL);
+			break;
+		default:
+			break;
+		}
+	}
 
 }
 

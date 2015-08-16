@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="F:\opengl\freeglut-3.0.0.tar\freeglut-3.0.0\progs\demos\subwin\subwin.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="F:\opengl\freeglut-3.0.0.tar\freeglut-3.0.0\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{765F8554-56EE-4B95-A4C2-A3C6192EBE7A}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
