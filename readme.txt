@@ -25,4 +25,7 @@ modelviuew矩阵
 	
 6）学习资料
 http://www.glprogramming.com/red/chapter03.html
+
+7）如何以足够高的fps流畅的刷新？
+
 	
